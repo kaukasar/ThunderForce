@@ -24,6 +24,62 @@
       this.respawnTimer = 0;
       this.tilt = 0;
       this.t = 0;
+      this.exiting = false;   // banövergång: skeppet flyger ut ur bild
+      this.exitDone = false;
+      this.exitSpeed = 0;
+      this.entering = false;  // banövergång: skeppet flyger in från vänster
+    }
+
+    // Startar inflygning från vänster kant till startpositionen.
+    startEntry() {
+      this.entering = true;
+      this.enterX = this.x;
+      this.x = -70;
+      this.invuln = 2;
+    }
+
+    updateEnter(dt) {
+      const g = this.g;
+      this.invuln = 2; // oskadbar under inflygningen (ingen blinkning)
+      const vx = Math.max(90, (this.enterX - this.x) * 4.5);
+      this.x = Math.min(this.enterX, this.x + vx * dt);
+      this.tilt = TF.lerp(this.tilt, 0, Math.min(1, dt * 8));
+      this.crawAngle += dt * 3.2;
+      if (Math.random() < 0.9) {
+        g.particles.spawn(this.x - 22, this.y + TF.rand(-4, 4), -vx * 0.3 - TF.rand(0, 80), TF.rand(-20, 20),
+          TF.rand(0.12, 0.3), 3 + vx / 250, TF.choose(['#fff4b0', '#ff9a2a', '#7fe3ff']), 0, 0.92);
+      }
+      if (this.x >= this.enterX - 0.5) {
+        this.x = this.enterX;
+        this.entering = false;
+        this.invuln = 1.5; // kort skydd (blinkar) efter landning
+      }
+    }
+
+    startExit() {
+      this.exiting = true;
+      this.exitDone = false;
+      this.exitSpeed = 60;
+      TF.Audio.play('boost');
+    }
+
+    // Efter slutbossen tar skeppet fart framåt och lämnar skärmen.
+    updateExit(dt) {
+      const g = this.g;
+      this.exitSpeed = Math.min(1500, this.exitSpeed + 650 * dt);
+      this.x += this.exitSpeed * dt;
+      this.tilt = TF.lerp(this.tilt, 0, Math.min(1, dt * 8));
+      this.crawAngle += dt * 3.2;
+      const k = this.exitSpeed / 1500;
+      for (let i = 0; i < 2; i++) {
+        g.particles.spawn(this.x - 22, this.y + TF.rand(-5, 5), -this.exitSpeed * 0.25 - TF.rand(0, 120), TF.rand(-25, 25),
+          TF.rand(0.15, 0.35), 3 + k * 4, TF.choose(['#fff4b0', '#ff9a2a', '#7fe3ff']), 0, 0.92);
+      }
+      // hastighetsstreck som ger en känsla av fart
+      if (Math.random() < 0.6 + k) {
+        g.particles.spawn(TF.rand(0, TF.W), TF.rand(TF.TOP, TF.H), -400 - this.exitSpeed, 0, 0.25, 1.5, '#cfe0ff', 1, 0.97);
+      }
+      if (this.x > TF.W + 90) this.exitDone = true;
     }
 
     nextOwned(from) {
@@ -50,6 +106,9 @@
         return;
       }
       this.invuln = Math.max(0, this.invuln - dt);
+
+      if (this.exiting) { this.updateExit(dt); return; }
+      if (this.entering) { this.updateEnter(dt); return; }
 
       // 8-riktad förflyttning, läses varje frame
       let dx = (I.isDown('right') ? 1 : 0) - (I.isDown('left') ? 1 : 0);
@@ -174,7 +233,7 @@
 
     draw(ctx) {
       if (!this.alive) return;
-      if (this.invuln > 0 && Math.floor(this.invuln * 16) % 2 === 0) return;
+      if (this.invuln > 0 && !this.entering && Math.floor(this.invuln * 16) % 2 === 0) return;
       const { x, y } = this;
       const wcol = TF.WEAPONS[this.weapon].color;
 
@@ -194,7 +253,8 @@
       ctx.translate(x, y);
       ctx.scale(1, 1 - Math.abs(this.tilt) * 0.25);
       // motorlåga
-      const fl = 10 + Math.random() * 8;
+      const boost = this.exiting ? this.exitSpeed * 0.05 : this.entering ? (this.enterX - this.x) * 0.1 : 0;
+      const fl = 10 + Math.random() * 8 + boost;
       ctx.fillStyle = '#ff9a2a';
       ctx.beginPath(); ctx.moveTo(-18, -4); ctx.lineTo(-18 - fl, 0); ctx.lineTo(-18, 4); ctx.fill();
       ctx.fillStyle = '#fff4b0';

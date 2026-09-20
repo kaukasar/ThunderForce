@@ -80,7 +80,7 @@
       super(g, sx, sy);
       this.from = from; this.tx = tx; this.ty = ty;
       this.attack = o.attack || 'spread';
-      this.setHp(o.hp || 26); this.r = 26; this.small = false; this.score = 1500;
+      this.setHp(o.hp || 21); // grundvärde 26 → 21 (ca -20 %) this.r = 26; this.small = false; this.score = 1500;
       this.state = 'enter'; this.stay = o.stay || 5; this.drop = o.drop || null;
       this.fireTimer = 0.6;
     }

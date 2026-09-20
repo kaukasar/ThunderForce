@@ -114,6 +114,18 @@
 
 
 
+\### 3.3 Banövergång
+
+
+
+\* \*\*Utflygning efter slutboss:\*\* När en slutboss besegrats och "STAGE CLEAR" visats en kort stund tar skeppet fart framåt och flyger iväg ut ur bild till höger, innan nästa bana laddas. Under utflygningen styr spelaren inte skeppet och skjuter inte, skeppet är oskadbart, motorlågan blir större och en avgasstrimma samt hastighetsstreck visas. Bakgrundens scrollning ökar med skeppets fart.
+
+\* Nästa bana laddas först när skeppet lämnat skärmen (och efter sista banan börjar spelet om med högre svårighetsgrad på samma sätt). Övergången gäller enbart slutbossar, inte minibossar.
+
+\* \*\*Inflygning i nästa bana:\*\* Den nya banan börjar med att skeppet flyger in från skärmens vänstra kant till sin startposition (ca 0,7 sekunder) medan bakgrunden bromsar in från hög fart till banans normala hastighet. Skeppet är oskadbart och styrs inte under inflygningen, och får därefter ett kort skydd (blinkar) innan spelaren tar över. Inflygningen används enbart vid banövergångar; ett nytt spel eller en omstart placerar skeppet direkt på startpositionen.
+
+
+
 \---
 
 
@@ -250,7 +262,7 @@ Fienderna introduceras i vågor via ett tids- eller avståndsbaserat skriptsyste
 
 
 
-\* \*\*Egenskaper:\*\* Högre HP (kräver fokuserad eld).
+\* \*\*Egenskaper:\*\* Högre HP (kräver fokuserad eld), men något lägre än övriga tåliga fiender: cirka 20 % mindre tålighet än de ursprungligen var (ca 32 Twin Shot-skott på bana 1, före svårighetsökning per bana/varv).
 
 \* \*\*Beteende:\*\* Åker in från höger/ovan/under, stannar upp på skärmen, avfyrar spridningsskott eller riktade laserstrålar mot spelaren, och reträttar sedan.
 

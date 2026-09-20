@@ -4,6 +4,8 @@
   const TF = window.TF;
   const W = TF.W, H = TF.H;
   const MID = (TF.TOP + H) / 2;
+  // Sekunder kvar på "STAGE CLEAR"-nedräkningen (från 5) då skeppet lyfter
+  const STAGE_EXIT_AT = 3.6;
 
   class Game {
     constructor() {
@@ -49,7 +51,7 @@
       };
     }
 
-    startStage(i) {
+    startStage(i, flyIn = false) {
       const def = TF.STAGES[i];
       this.stageIndex = i;
       this.stageDef = def;
@@ -57,19 +59,22 @@
       this.terrain = new TF.Terrain(def.terrain, def.theme);
       this.scrollX = 0;
       this.stageSpeed = def.speed;
-      this.scrollSpeed = def.speed;
+      // Vid banövergång fortsätter farten från utflygningen och bromsar in
+      this.scrollSpeed = flyIn ? 500 : def.speed;
       this.scrollLocked = false;
       this.eventIdx = 0;
       this.enemies = []; this.playerBullets = []; this.enemyBullets = []; this.lasers = []; this.items = [];
       this.particles.clear();
       this.boss = null;
       this.stageClearTimer = 0;
+      this.exitHold = 0;
       this.gameOverTimer = 0;
       this.shieldDropped = false;
       this.diff = this.computeDiff(i, this.loop);
       const p = this.player;
       p.place(120, MID);
       p.invuln = 2;
+      if (flyIn) p.startEntry(); // skeppet flyger in från vänster kant
       this.state = 'playing';
       this.stateT = 0;
       this.banner(`STAGE ${i + 1}`, '#ffffff', 3, def.name + (this.loop ? `  ·  LOOP ${this.loop + 1}` : ''));
@@ -201,12 +206,12 @@
       if (i >= TF.STAGES.length) {
         i = 0;
         this.loop++;
-        this.startStage(0);
+        this.startStage(0, true);
         this.banner('ALL STAGES CLEAR!', '#ffd24a', 4, `LOOP ${this.loop + 1} — DIFFICULTY UP`);
         TF.Audio.play('clear');
         return;
       }
-      this.startStage(i);
+      this.startStage(i, true);
     }
 
     nearestTarget(x, y) {
@@ -277,9 +282,15 @@
     }
 
     updateWorld(dt, active) {
-      const target = this.scrollLocked ? 0 : this.stageSpeed;
+      // Under ut- och inflygningen mellan banor följer scrollen skeppets fart
+      const p = this.player;
+      const exiting = p && p.exiting;
+      const target = exiting ? Math.min(700, p.exitSpeed * 0.55)
+        : this.scrollLocked ? 0 : this.stageSpeed;
       const diff = target - this.scrollSpeed;
-      this.scrollSpeed += TF.clamp(diff, -70 * dt, 70 * dt);
+      // snabb inbromsning tills farten från banövergången är nere på banans hastighet
+      const rate = exiting || this.scrollSpeed > this.stageSpeed + 1 ? 500 : 70;
+      this.scrollSpeed += TF.clamp(diff, -rate * dt, rate * dt);
       this.scrollX += this.scrollSpeed * dt;
 
       const ev = this.stageDef.events;
@@ -310,7 +321,12 @@
       }
       if (this.stageClearTimer > 0 && active) {
         this.stageClearTimer -= dt;
-        if (this.stageClearTimer <= 0) this.nextStage();
+        const p = this.player;
+        // efter en kort paus tar skeppet fart och flyger iväg ut ur bild
+        if (this.stageClearTimer <= STAGE_EXIT_AT && p.alive && !p.exiting) p.startExit();
+        if (p.exitDone) this.exitHold += dt;
+        // nästa bana laddas när skeppet lämnat skärmen (timern är reservlösning)
+        if (this.stageClearTimer <= 0 || this.exitHold > 0.4) this.nextStage();
       }
       if (this.gameOverTimer > 0) {
         this.gameOverTimer -= dt;

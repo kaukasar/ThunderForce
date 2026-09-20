@@ -157,6 +157,10 @@
         case 'phase':
           this.tone('sawtooth', 200, 800, 0.4, 0.1);
           break;
+        case 'boost':
+          this.tone('sawtooth', 120, 900, 1.4, 0.07);
+          this.noise(1.6, 0.25, 500, 5000, 0, 'bandpass');
+          break;
         case 'pause':
           this.tone('sine', 700, 700, 0.08, 0.1);
           break;
