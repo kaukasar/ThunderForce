@@ -300,6 +300,12 @@ Fienderna introduceras i vågor via ett tids- eller avståndsbaserat skriptsyste
 
 
 
+\* \*\*Justering, bana 3:s slutboss (Overlord):\*\* De övre och nedre vingkanonerna, som skjuter serier av röda runda skott, har 25 % lägre skottfrekvens än ursprungligen (skjuter ungefär var 1,33:e gång så ofta i tid). Bossens övriga vapen (ögonlaser, missiler, kärnskott och spiral) är oförändrade.
+
+
+
+
+
 \* \*\*Visuell utformning:\*\* Varje boss ska ha en tydlig och igenkännbar skepps- eller maskindesign med skrov, överbyggnad, monterade kanontorn och motorer – inte enbart geometriska block. Utformningen är rent kosmetisk och påverkar inte träffytor, faser eller attackmönster.
 
 

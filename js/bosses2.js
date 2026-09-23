@@ -310,6 +310,7 @@
   TF.BOSSES.crab = MagmaCrab;
 
   // Bana 3 slutboss
+  const WING_FIRE_RATE = 0.75; // vingkanonernas skottfrekvens relativt originalet
   class Overlord extends Boss {
     constructor(g) {
       super(g, { name: 'OVERLORD', hp: 460, homeX: 760, enterOffset: 200 });
@@ -327,7 +328,8 @@
       this.x = TF.lerp(this.x, this.homeX + Math.sin(this.fightT * spd * 0.7) * (30 + this.phase * 40), dt * 2);
       this.y = TF.lerp(this.y, MID + Math.sin(this.fightT * spd) * (60 + this.phase * 15), dt * 2);
       const wt = this.part('wingTop'), wb = this.part('wingBot'), eye = this.part('eye'), bay = this.part('bay');
-      if (this.tick('wings', this.phase >= 2 ? 2.2 : 1.4, dt)) {
+      // Vingkanonerna (övre/nedre) skjuter 25 % glesare: frekvens × 0,75
+      if (this.tick('wings', (this.phase >= 2 ? 2.2 : 1.4) / WING_FIRE_RATE, dt)) {
         for (const w of [wt, wb]) {
           if (!w) continue;
           if (this.phase >= 2) TF.shootRing(g, w.x, w.y, 12, 150, this.fightT);
